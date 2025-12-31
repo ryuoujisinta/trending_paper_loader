@@ -13,7 +13,7 @@ from data_processing import (
     sort_papers_by_date,
     sort_papers_by_upvotes,
 )
-from utils import load_data, save_data, fetch_daily_papers_from_hf
+from utils import load_data, save_data, fetch_daily_papers_from_hf, logger
 
 # Page config
 st.set_page_config(
@@ -92,6 +92,17 @@ else:  # 期間指定
             start_date = end_date = today
     else:
         start_date = end_date = date_selection
+
+# --- Logging Date Change ---
+if "last_date_range" not in st.session_state:
+    st.session_state.last_date_range = (None, None)
+
+if st.session_state.last_date_range != (start_date, end_date):
+    if start_date == end_date:
+        logger.info(f"日付が変更されました: {start_date}")
+    else:
+        logger.info(f"日付が変更されました: {start_date} 〜 {end_date}")
+    st.session_state.last_date_range = (start_date, end_date)
 
 search_query = st.sidebar.text_input("検索キーワード (保存データ内)", "")
 
