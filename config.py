@@ -34,6 +34,7 @@ class Config:
     LAYOUT: str = "wide"
 
     # ロギング設定
+    LOG_DIR: str = "logs"
     LOG_FILE: str = "trending_papers.log"
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -63,6 +64,7 @@ class Config:
             PAGE_TITLE=os.getenv("PAGE_TITLE", cls.PAGE_TITLE),
             PAGE_ICON=os.getenv("PAGE_ICON", cls.PAGE_ICON),
             LAYOUT=os.getenv("LAYOUT", cls.LAYOUT),
+            LOG_DIR=os.getenv("LOG_DIR", cls.LOG_DIR),
             LOG_FILE=os.getenv("LOG_FILE", cls.LOG_FILE),
             LOG_LEVEL=os.getenv("LOG_LEVEL", cls.LOG_LEVEL),
             LOG_FORMAT=os.getenv("LOG_FORMAT", cls.LOG_FORMAT),

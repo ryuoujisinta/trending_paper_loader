@@ -27,12 +27,19 @@ from exceptions import (
     UpvoteFetchError,
 )
 
+# ログディレクトリの作成
+if not os.path.exists(config.LOG_DIR):
+    os.makedirs(config.LOG_DIR)
+
+# ログファイルのパス
+log_file_path = os.path.join(config.LOG_DIR, config.LOG_FILE)
+
 # ロガーの設定
 logging.basicConfig(
     level=getattr(logging, config.LOG_LEVEL),
     format=config.LOG_FORMAT,
     handlers=[
-        logging.FileHandler(config.LOG_FILE, encoding="utf-8"),
+        logging.FileHandler(log_file_path, encoding="utf-8"),
         logging.StreamHandler(),
     ],
 )

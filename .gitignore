@@ -3,7 +3,7 @@ venv/
 __pycache__/
 data/
 .vscode/
-*.log
+logs/
 *.pyc
 .pytest_cache/
 htmlcov/
