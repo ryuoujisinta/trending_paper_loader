@@ -59,7 +59,7 @@ def load_data(date_str: str) -> list[dict[str, Any]] | None:
     """
     file_path = os.path.join(config.DATA_DIR, f"{date_str}.json")
     if os.path.exists(file_path):
-        logger.info(f"データ読み込み: {file_path}")
+        logger.debug(f"データ読み込み: {file_path}")
         with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
     logger.info(f"対象日付のデータファイルが未取得です（パス: {file_path}）")
