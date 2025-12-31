@@ -1,13 +1,25 @@
-import streamlit as st
+# 標準ライブラリ
 import datetime
 import os
+
+# サードパーティライブラリ
+import streamlit as st
+
+# ローカルモジュール
+from config import config
+from data_processing import (
+    deduplicate_papers,
+    filter_papers,
+    sort_papers_by_date,
+    sort_papers_by_upvotes,
+)
 from utils import load_data, save_data, fetch_daily_papers_from_hf
 
 # Page config
 st.set_page_config(
-    page_title="Trending Paper Dashboard",
-    page_icon="📄",
-    layout="wide"
+    page_title=config.PAGE_TITLE,
+    page_icon=config.PAGE_ICON,
+    layout=config.LAYOUT
 )
 
 # Custom CSS
@@ -135,33 +147,7 @@ if loaded_dates:
         st.rerun()
 
 # Deduplication (Keep LATEST occurrence and highest upvotes)
-unique_papers = {}
-for p in papers:
-    key = p.get('id') or p.get('title')
-    if not key:
-        continue
-
-    # Get numeric upvotes for comparison
-    try:
-        current_upvotes = int(p.get('upvotes', 0))
-    except (ValueError, TypeError):
-        current_upvotes = 0
-
-    if key not in unique_papers:
-        unique_papers[key] = p
-    else:
-        # Keep the one with newer date or more upvotes
-        prev_p = unique_papers[key]
-        try:
-            prev_upvotes = int(prev_p.get('upvotes', 0))
-        except (ValueError, TypeError):
-            prev_upvotes = 0
-
-        # Update if newer date or higher upvotes
-        if p['date'] > prev_p['date'] or current_upvotes > prev_upvotes:
-            unique_papers[key] = p
-
-papers = list(unique_papers.values())
+papers = deduplicate_papers(papers)
 
 # Header
 if start_date == end_date:
@@ -242,24 +228,15 @@ if loaded_dates:
 
 # 3. Filter & Display
 if papers:
-    filtered_papers = []
-    query = search_query.lower()
-
     # Sorting logic
     if sort_option == "Upvote数順":
-        def get_upvotes(x):
-            try:
-                return int(x.get('upvotes', 0))
-            except (ValueError, TypeError):
-                return 0
-        papers_sorted = sorted(papers, key=get_upvotes, reverse=True)
+        papers_sorted = sort_papers_by_upvotes(papers, reverse=True)
     else:
         # Default: Newest First
-        papers_sorted = sorted(papers, key=lambda x: x['date'], reverse=True)
+        papers_sorted = sort_papers_by_date(papers, reverse=True)
 
-    for p in papers_sorted:
-        if query in p["title"].lower() or query in p["summary"].lower():
-            filtered_papers.append(p)
+    # Filtering
+    filtered_papers = filter_papers(papers_sorted, search_query)
 
     if filtered_papers:
         st.write(f"表示: {len(filtered_papers)} / {len(papers)} 件")
@@ -267,7 +244,7 @@ if papers:
         for i, paper in enumerate(filtered_papers):
             # Display-time thumbnail override
             if paper.get('id'):
-                paper['thumbnail'] = f"https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/{paper['id']}.png"
+                paper['thumbnail'] = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper['id'])
 
             with st.container(border=True):
                 c1, c2 = st.columns([1, 2])
