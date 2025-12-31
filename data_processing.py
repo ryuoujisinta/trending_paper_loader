@@ -4,10 +4,10 @@
 このモジュールは論文データの処理（重複排除、ソート、フィルタリング）を行う関数を提供します。
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 
-def get_numeric_upvotes(paper: Dict[str, Any]) -> int:
+def get_numeric_upvotes(paper: dict[str, Any]) -> int:
     """
     論文のUpvote数を整数として取得する
 
@@ -23,7 +23,7 @@ def get_numeric_upvotes(paper: Dict[str, Any]) -> int:
         return 0
 
 
-def deduplicate_papers(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def deduplicate_papers(papers: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     論文リストから重複を排除する
 
@@ -57,8 +57,8 @@ def deduplicate_papers(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def sort_papers_by_date(
-    papers: List[Dict[str, Any]], reverse: bool = True
-) -> List[Dict[str, Any]]:
+    papers: list[dict[str, Any]], reverse: bool = True
+) -> list[dict[str, Any]]:
     """
     論文リストを日付順にソートする
 
@@ -73,8 +73,8 @@ def sort_papers_by_date(
 
 
 def sort_papers_by_upvotes(
-    papers: List[Dict[str, Any]], reverse: bool = True
-) -> List[Dict[str, Any]]:
+    papers: list[dict[str, Any]], reverse: bool = True
+) -> list[dict[str, Any]]:
     """
     論文リストをUpvote数順にソートする
 
@@ -88,7 +88,7 @@ def sort_papers_by_upvotes(
     return sorted(papers, key=get_numeric_upvotes, reverse=reverse)
 
 
-def filter_papers(papers: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
+def filter_papers(papers: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
     """
     キーワードで論文をフィルタリングする
 

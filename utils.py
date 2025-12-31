@@ -11,7 +11,8 @@ import logging
 import os
 import random
 import time
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 from urllib.parse import urlparse
 
 # サードパーティライブラリ
@@ -46,7 +47,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_data(date_str: str) -> Optional[List[Dict[str, Any]]]:
+def load_data(date_str: str) -> list[dict[str, Any]] | None:
     """
     ローカルJSONファイルからデータを読み込む
 
@@ -65,7 +66,7 @@ def load_data(date_str: str) -> Optional[List[Dict[str, Any]]]:
     return None
 
 
-def save_data(date_str: str, data: List[Dict[str, Any]]) -> None:
+def save_data(date_str: str, data: list[dict[str, Any]]) -> None:
     """
     ローカルJSONファイルにデータを保存する
 
@@ -87,7 +88,7 @@ def request_with_retry(
     url: str,
     retries: int = config.DEFAULT_RETRIES,
     delay: int = config.DEFAULT_RETRY_DELAY,
-) -> Optional[requests.Response]:
+) -> requests.Response | None:
     """
     リトライロジック付きHTTPリクエスト
 
@@ -219,7 +220,7 @@ def _extract_upvotes(article: BeautifulSoup) -> str:
     return upvote_tag.get_text(strip=True) if upvote_tag else "0"
 
 
-def get_upvotes_map(target_date: datetime.date) -> Dict[str, str]:
+def get_upvotes_map(target_date: datetime.date) -> dict[str, str]:
     """
     指定日のUpvote数を高速にスクレイピングする
 
@@ -267,8 +268,8 @@ def get_upvotes_map(target_date: datetime.date) -> Dict[str, str]:
 
 def fetch_daily_papers_from_hf(
     target_date: datetime.date,
-    progress_callback: Optional[Callable[[float], None]] = None,
-) -> List[Dict[str, Any]]:
+    progress_callback: Callable[[float], None] | None = None,
+) -> list[dict[str, Any]]:
     """
     指定日のHugging Face Trending Papersをスクレイピングする
 
