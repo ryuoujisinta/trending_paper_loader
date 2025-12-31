@@ -61,7 +61,7 @@ def load_data(date_str: str) -> Optional[List[Dict[str, Any]]]:
         logger.info(f"データ読み込み: {file_path}")
         with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
-    logger.warning(f"ファイルが見つかりません: {file_path}")
+    logger.info(f"対象日付のデータファイルが未取得です（パス: {file_path}）")
     return None
 
 
