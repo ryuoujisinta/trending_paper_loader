@@ -39,7 +39,7 @@ local_css("css/style.css")
 st.sidebar.title("Trending Paper Dashboard")
 
 # Date Selection (GMT/UTC)
-today = datetime.datetime.now(datetime.timezone.utc).date()
+today = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)).date()
 
 # Mode Selection
 date_mode = st.sidebar.radio("日付選択モード", ["単一日付", "期間指定"], horizontal=True)
