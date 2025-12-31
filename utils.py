@@ -36,21 +36,28 @@ if not os.path.exists(config.LOG_DIR):
 log_file_path = os.path.join(config.LOG_DIR, config.LOG_FILE)
 
 # ロガーの設定
-logging.basicConfig(
-    level=getattr(logging, config.LOG_LEVEL),
-    format=config.LOG_FORMAT,
-    handlers=[
-        RotatingFileHandler(
-            log_file_path,
-            encoding="utf-8",
-            maxBytes=config.LOG_MAX_BYTES,
-            backupCount=config.LOG_BACKUP_COUNT,
-        ),
-        logging.StreamHandler(),
-    ],
-)
+logger = logging.getLogger("trending_papers")
+logger.setLevel(getattr(logging, config.LOG_LEVEL))
+logger.propagate = False  # ルートロガーへの伝播を停止（外部ライブラリのログ混入防止）
 
-logger = logging.getLogger(__name__)
+if not logger.handlers:
+    # ログフォーマッタ
+    formatter = logging.Formatter(config.LOG_FORMAT)
+
+    # ファイルハンドラ（ローテーション設定付き）
+    file_handler = RotatingFileHandler(
+        log_file_path,
+        encoding="utf-8",
+        maxBytes=config.LOG_MAX_BYTES,
+        backupCount=config.LOG_BACKUP_COUNT,
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    # コンソールハンドラ
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
 
 
 def load_data(date_str: str) -> list[dict[str, Any]] | None:
