@@ -23,7 +23,6 @@ from config import config
 from exceptions import (
     InvalidURLError,
     RateLimitError,
-    SummaryFetchError,
     UpvoteFetchError,
 )
 

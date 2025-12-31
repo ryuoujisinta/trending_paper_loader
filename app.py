@@ -22,6 +22,7 @@ st.set_page_config(
     layout=config.LAYOUT
 )
 
+
 # Custom CSS
 def local_css(file_name):
     if os.path.exists(file_name):
@@ -29,6 +30,7 @@ def local_css(file_name):
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     else:
         st.warning(f"{file_name} not found.")
+
 
 local_css("css/style.css")
 
@@ -72,7 +74,7 @@ if date_mode == "単一日付":
 
     start_date = end_date = st.session_state.single_date
 
-else: # 期間指定
+else:  # 期間指定
     date_selection = st.sidebar.date_input(
         "期間選択",
         value=(today, today),
@@ -96,10 +98,12 @@ search_query = st.sidebar.text_input("検索キーワード (保存データ内)
 # Sorting Option
 sort_option = st.sidebar.radio("並び替え", ["日付順 (新着順)", "Upvote数順"], horizontal=True)
 
+
 # Helper to generate date list
 def daterange(start, end):
     for n in range(int((end - start).days) + 1):
         yield start + datetime.timedelta(n)
+
 
 # 1. Load Data across range
 papers = []
@@ -140,7 +144,7 @@ if loaded_dates:
                             save_data(d_str, daily_data)
             except Exception as e:
                 st.error(f"{d_str} のUpvote更新中にエラーが発生しました: {e}")
-                st.stop() # Stop execution as requested
+                st.stop()  # Stop execution as requested
             progress_bar.progress((i + 1) / total)
 
         st.sidebar.success("Upvote数を更新しました")
@@ -172,7 +176,7 @@ if missing_dates:
             d_str = d.strftime("%Y-%m-%d")
 
             # Inner progress callback for single day?
-            # We can simplify: just update main bar per day.
+            # We can simplify: just update main bar per day for simplicity.
             # Or make it granular. Let's do main bar per day for simplicity.
             my_bar.progress(current_step / total_steps, text=f"{d_str} のデータを取得中...")
 
@@ -190,7 +194,7 @@ if missing_dates:
                         newly_fetched_count += len(daily_papers)
                 except Exception as e:
                     st.error(f"エラーが発生しました: {e}")
-                    st.stop() # Stop execution as requested
+                    st.stop()  # Stop execution as requested
 
             current_step += 1
             my_bar.progress(current_step / total_steps, text=f"{d_str} 完了")
@@ -199,11 +203,12 @@ if missing_dates:
         st.success(f"合計 {newly_fetched_count} 件のデータを取得しました。")
         st.rerun()
 
+
 # Refetch Button (Update existing)
 if loaded_dates:
     st.caption(f"読み込み済み: {len(papers)} 件 ({len(loaded_dates)} 日分)")
     if st.button("表示中の期間をすべて再取得 (更新)"):
-         # Similar loop but for all dates in range
+        # Similar loop but for all dates in range
         progress_text = "データを更新中..."
         my_bar = st.progress(0, text=progress_text)
         total_steps = (end_date - start_date).days + 1
@@ -219,7 +224,7 @@ if loaded_dates:
                         save_data(d_str, daily_papers)
                 except Exception as e:
                     st.error(f"エラーが発生しました: {e}")
-                    st.stop() # Stop execution as requested
+                    st.stop()  # Stop execution as requested
             current_step += 1
 
         my_bar.progress(1.0, text="更新完了")
