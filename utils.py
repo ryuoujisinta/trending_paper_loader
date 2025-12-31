@@ -12,6 +12,7 @@ import os
 import random
 import time
 from collections.abc import Callable
+from logging.handlers import RotatingFileHandler
 from typing import Any
 from urllib.parse import urlparse
 
@@ -39,7 +40,12 @@ logging.basicConfig(
     level=getattr(logging, config.LOG_LEVEL),
     format=config.LOG_FORMAT,
     handlers=[
-        logging.FileHandler(log_file_path, encoding="utf-8"),
+        RotatingFileHandler(
+            log_file_path,
+            encoding="utf-8",
+            maxBytes=config.LOG_MAX_BYTES,
+            backupCount=config.LOG_BACKUP_COUNT,
+        ),
         logging.StreamHandler(),
     ],
 )

@@ -36,6 +36,8 @@ class Config:
     LOG_FILE: str = "trending_papers.log"
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    LOG_MAX_BYTES: int = 1048576  # 1MB
+    LOG_BACKUP_COUNT: int = 5
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -60,6 +62,8 @@ class Config:
             LOG_FILE=os.getenv("LOG_FILE", cls.LOG_FILE),
             LOG_LEVEL=os.getenv("LOG_LEVEL", cls.LOG_LEVEL),
             LOG_FORMAT=os.getenv("LOG_FORMAT", cls.LOG_FORMAT),
+            LOG_MAX_BYTES=int(os.getenv("LOG_MAX_BYTES", str(cls.LOG_MAX_BYTES))),
+            LOG_BACKUP_COUNT=int(os.getenv("LOG_BACKUP_COUNT", str(cls.LOG_BACKUP_COUNT))),
         )
 
 
