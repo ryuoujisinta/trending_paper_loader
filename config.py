@@ -23,7 +23,6 @@ class Config:
     REQUEST_TIMEOUT: int = 10  # リクエストタイムアウト（秒）
 
     # スクレイピング設定
-    BASE_URL: str = "https://huggingface.co/papers"
     CDN_THUMBNAIL_URL_TEMPLATE: str = "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/{paper_id}.png"
 
     # UI設定
@@ -53,7 +52,6 @@ class Config:
             DEFAULT_RETRY_DELAY=int(os.getenv("DEFAULT_RETRY_DELAY", str(cls.DEFAULT_RETRY_DELAY))),
             RATE_LIMIT_DELAY=float(os.getenv("RATE_LIMIT_DELAY", str(cls.RATE_LIMIT_DELAY))),
             REQUEST_TIMEOUT=int(os.getenv("REQUEST_TIMEOUT", str(cls.REQUEST_TIMEOUT))),
-            BASE_URL=os.getenv("BASE_URL", cls.BASE_URL),
             CDN_THUMBNAIL_URL_TEMPLATE=os.getenv("CDN_THUMBNAIL_URL_TEMPLATE", cls.CDN_THUMBNAIL_URL_TEMPLATE),
             PAGE_TITLE=os.getenv("PAGE_TITLE", cls.PAGE_TITLE),
             PAGE_ICON=os.getenv("PAGE_ICON", cls.PAGE_ICON),

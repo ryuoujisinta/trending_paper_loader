@@ -128,7 +128,7 @@ uv run pytest --cov=. --cov-report=html tests/
 
 - **言語**: Python 3.13
 - **Webフレームワーク**: Streamlit 1.29.0
-- **データ取得**: requests + BeautifulSoup4
+- **データ取得**: huggingface_hub
 - **データ保存**: JSON
 - **テスト**: pytest
 - **コード品質**: black, flake8, mypy

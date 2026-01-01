@@ -33,23 +33,3 @@ class SummaryFetchError(PaperFetchError):
     """
 
     pass
-
-
-class UpvoteFetchError(PaperFetchError):
-    """
-    Upvote取得エラー
-
-    論文のUpvote数の取得に失敗した場合に発生します。
-    """
-
-    pass
-
-
-class InvalidURLError(PaperFetchError):
-    """
-    無効なURLエラー
-
-    提供されたURLが無効な形式である場合に発生します。
-    """
-
-    pass

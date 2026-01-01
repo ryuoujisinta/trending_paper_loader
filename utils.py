@@ -9,25 +9,15 @@ import datetime
 import json
 import logging
 import os
-import random
-import time
 from collections.abc import Callable
 from logging.handlers import RotatingFileHandler
 from typing import Any
-from urllib.parse import urlparse
 
 # サードパーティライブラリ
-import requests
-from bs4 import BeautifulSoup
 from huggingface_hub import HfApi
 
 # ローカルモジュール
 from config import config
-from exceptions import (
-    InvalidURLError,
-    RateLimitError,
-    UpvoteFetchError,
-)
 
 # ログディレクトリの作成
 if not os.path.exists(config.LOG_DIR):
@@ -101,141 +91,28 @@ def save_data(date_str: str, data: list[dict[str, Any]]) -> None:
     logger.info(f"データ保存: {file_path} ({len(data)} 件)")
 
 
-def request_with_retry(
-    url: str,
-    retries: int = config.DEFAULT_RETRIES,
-    delay: int = config.DEFAULT_RETRY_DELAY,
-) -> requests.Response | None:
-    """
-    リトライロジック付きHTTPリクエスト
-
-    429エラー（レート制限）の場合のみリトライを行います。
-    その他のエラーの場合は例外を発生させます。
-
-    Args:
-        url: リクエスト先URL
-        retries: リトライ回数（デフォルト: config.DEFAULT_RETRIES）
-        delay: リトライ遅延時間（秒、デフォルト: config.DEFAULT_RETRY_DELAY）
-
-    Returns:
-        HTTPレスポンス、リトライ上限に達した場合はNone
-
-    Raises:
-        RateLimitError: リトライ上限に達した場合
-        requests.exceptions.RequestException: その他のHTTPエラー
-    """
-    for i in range(retries):
-        try:
-            response = requests.get(url, timeout=config.REQUEST_TIMEOUT)
-            if response.status_code == 429:
-                wait_time = delay * (2**i) + random.uniform(0, 1)
-                logger.warning(f"429 レート制限エラー。{wait_time:.2f}秒待機中...")
-                time.sleep(wait_time)
-                continue
-
-            response.raise_for_status()
-            logger.info(f"リクエスト成功: {url}")
-            return response
-        except requests.exceptions.RequestException as e:
-            if (
-                isinstance(e, requests.exceptions.HTTPError)
-                and e.response.status_code == 429
-            ):
-                if i < retries - 1:
-                    continue
-                logger.error(f"リトライ上限に達しました: {url}")
-                raise RateLimitError(f"リトライ上限に達しました: {url}") from e
-
-            logger.error(f"リクエストエラー: {url}, エラー: {e}")
-            raise e
-    return None
-
-
-def _validate_url(url: str) -> None:
-    """
-    URLの形式を検証する
-
-    Args:
-        url: 検証するURL
-
-    Raises:
-        InvalidURLError: URLが無効な形式の場合
-    """
-    if not url:
-        raise InvalidURLError("URLが空です")
-
-    try:
-        result = urlparse(url)
-        if not all([result.scheme, result.netloc]):
-            raise InvalidURLError(f"無効なURL形式: {url}")
-    except ValueError as e:
-        raise InvalidURLError(f"URL解析エラー: {url}") from e
-
-    # Hugging Faceドメインの検証（オプション）
-    if "huggingface.co" not in result.netloc:
-        logger.warning(f"Hugging Face以外のドメイン: {url}")
-
-
-def _extract_upvotes(article: BeautifulSoup) -> str:
-    """
-    articleタグからUpvote数を抽出する
-
-    Args:
-        article: BeautifulSoupのarticle要素
-
-    Returns:
-        Upvote数の文字列、見つからない場合は"0"
-    """
-    upvote_tag = article.find("div", string=lambda x: x and x.strip().isdigit())
-    if not upvote_tag:
-        upvote_tag = article.find("span", string=lambda x: x and x.strip().isdigit())
-    return upvote_tag.get_text(strip=True) if upvote_tag else "0"
-
-
 def get_upvotes_map(target_date: datetime.date) -> dict[str, str]:
     """
-    指定日のUpvote数を高速にスクレイピングする
+    指定日のUpvote数をAPI経由で取得する
 
     Args:
         target_date: 取得対象の日付
 
     Returns:
         論文IDをキー、Upvote数を値とする辞書
-
-    Raises:
-        UpvoteFetchError: Upvote取得中にエラーが発生した場合
     """
     date_str = target_date.strftime("%Y-%m-%d")
-    url = f"{config.BASE_URL}?date={date_str}"
-
     logger.info(f"Upvote取得開始: {date_str}")
 
     try:
-        response = request_with_retry(url)
-        if not response:
-            logger.warning(f"Upvote取得失敗: {date_str}")
-            return {}
-
-        soup = BeautifulSoup(response.content, "html.parser")
-        articles = soup.find_all("article")
-
-        upvotes_map = {}
-        for article in articles:
-            # IDを取得
-            link_tag = article.find("a", href=True)
-            if not link_tag:
-                continue
-            paper_id = link_tag["href"].split("/")[-1]
-
-            # Upvotesを取得
-            upvotes = _extract_upvotes(article)
-            upvotes_map[paper_id] = upvotes
-
+        papers = list(hf_api.list_daily_papers(date=date_str))
+        upvotes_map = {paper.id: str(paper.upvotes) for paper in papers}
         logger.info(f"Upvote取得完了: {date_str} ({len(upvotes_map)} 件)")
         return upvotes_map
     except Exception as e:
         logger.error(f"Upvote取得エラー: {date_str}, エラー: {e}")
-        raise UpvoteFetchError(f"Upvote取得中にエラーが発生しました: {e}") from e
+        # APIエラー時は空の辞書を返して処理を続行させる
+        return {}
 
 
 def fetch_daily_papers_from_hf(
@@ -293,7 +170,7 @@ def fetch_daily_papers_from_hf(
 
             # 要約 (APIの結果にsummaryが含まれている場合はそれを使用)
             summary = paper.summary if hasattr(paper, 'summary') and paper.summary else (
-                 paper.summary if paper.summary else "要約なし"
+                paper.summary if paper.summary else "要約なし"
             )
 
             # Upvotes
