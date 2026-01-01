@@ -58,10 +58,10 @@ if date_mode == "単一日付":
             st.session_state.single_date += datetime.timedelta(days=1)
 
     with col_prev:
-        st.button("◀", key="prev_date", on_click=prev_day, use_container_width=True)
+        st.button("◀", key="prev_date", on_click=prev_day, width="stretch")
 
     with col_next:
-        st.button("▶", key="next_date", on_click=next_day, use_container_width=True)
+        st.button("▶", key="next_date", on_click=next_day, width="stretch")
 
     with col_date:
         st.date_input(
@@ -273,7 +273,7 @@ if papers:
                     st.markdown(f"❤️ **{upvotes}** &nbsp;&nbsp; | &nbsp;&nbsp; 📅 {paper.get('date')}")
 
                     if paper.get('thumbnail'):
-                        st.image(paper['thumbnail'], use_container_width=True)
+                        st.image(paper['thumbnail'], width="stretch")
 
                     st.caption(f"ID: {paper.get('id', '')}")
                     st.markdown(f"[元記事を読む]({paper['link']})", unsafe_allow_html=True)
