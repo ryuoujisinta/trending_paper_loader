@@ -1,9 +1,5 @@
-venv/
 .agent/
 __pycache__/
-data/
 .vscode/
-logs/
-*.pyc
 .pytest_cache/
 htmlcov/
