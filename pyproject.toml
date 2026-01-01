@@ -1,3 +1,28 @@
+[project]
+name = "trending-paper-dashboard"
+version = "0.1.0"
+description = "Hugging Face Trending Paper Dashboard"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "streamlit>=1.29.0",
+    "huggingface_hub>=0.20.0",
+    "beautifulsoup4>=4.12.2",
+    "requests>=2.31.0",
+    "pandas>=2.2.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4.3",
+    "pytest-cov>=4.1.0",
+    "black>=23.12.1",
+    "flake8>=7.0.0",
+    "mypy>=1.7.1",
+    "types-requests>=2.31.0.10",
+    "types-beautifulsoup4>=4.12.0.7",
+]
+
 [tool.black]
 line-length = 150
 target-version = ['py313']
