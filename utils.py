@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 # サードパーティライブラリ
 import requests
 from bs4 import BeautifulSoup
+from huggingface_hub import HfApi
 
 # ローカルモジュール
 from config import config
@@ -39,6 +40,9 @@ log_file_path = os.path.join(config.LOG_DIR, config.LOG_FILE)
 logger = logging.getLogger("trending_papers")
 logger.setLevel(getattr(logging, config.LOG_LEVEL))
 logger.propagate = False  # ルートロガーへの伝播を停止（外部ライブラリのログ混入防止）
+
+# Hugging Face APIクライアント
+hf_api = HfApi()
 
 if not logger.handlers:
     # ログフォーマッタ
@@ -172,51 +176,6 @@ def _validate_url(url: str) -> None:
         logger.warning(f"Hugging Face以外のドメイン: {url}")
 
 
-def get_paper_summary(paper_url: str) -> str:
-    """
-    論文詳細ページから要約（Abstract）を取得する
-
-    Args:
-        paper_url: 論文ページのURL
-
-    Returns:
-        論文の要約テキスト、取得できない場合はエラーメッセージ
-
-    Raises:
-        SummaryFetchError: 要約の取得に失敗した場合
-    """
-    if not paper_url:
-        return "URLなし"
-
-    try:
-        _validate_url(paper_url)
-    except InvalidURLError as e:
-        logger.warning(f"無効なURL: {paper_url}, エラー: {e}")
-        return f"無効なURL: {e}"
-
-    try:
-        # レート制限回避のための遅延
-        time.sleep(config.RATE_LIMIT_DELAY)
-
-        response = request_with_retry(paper_url)
-        if response:
-            soup = BeautifulSoup(response.content, "html.parser")
-            main_content = soup.find("main")
-            if main_content:
-                paragraphs = main_content.find_all("p")
-                for p in paragraphs:
-                    text = p.get_text(strip=True)
-                    if len(text) > 100:
-                        logger.info(f"要約取得成功: {paper_url}")
-                        return text
-            logger.warning(f"要約が見つかりませんでした: {paper_url}")
-            return "要約が見つかりませんでした。"
-        return "要約取得失敗 (Retry limit)"
-    except Exception as e:
-        logger.error(f"要約取得エラー: {paper_url}, エラー: {e}")
-        return f"要約取得エラー: {e}"
-
-
 def _extract_upvotes(article: BeautifulSoup) -> str:
     """
     articleタグからUpvote数を抽出する
@@ -310,48 +269,35 @@ def fetch_daily_papers_from_hf(
         True
     """
     date_str = target_date.strftime("%Y-%m-%d")
-    url = f"{config.BASE_URL}?date={date_str}"
-
     logger.info(f"論文データ取得開始: {date_str}")
 
     try:
-        response = request_with_retry(url)
-        if not response:
-            logger.warning(f"論文データ取得失敗: {date_str}")
-            return []
-
-        soup = BeautifulSoup(response.content, "html.parser")
-        articles = soup.find_all("article")
+        # APIを使用して論文リストを取得
+        papers = list(hf_api.list_daily_papers(date=date_str))
 
         results = []
-        total_articles = len(articles)
+        total_articles = len(papers)
         logger.info(f"{total_articles} 件の論文を発見: {date_str}")
 
-        for i, article in enumerate(articles):
+        for i, paper in enumerate(papers):
             if progress_callback:
                 progress_callback(i / total_articles if total_articles > 0 else 0)
 
-            # タイトル
-            title_tag = article.find("h3")
-            if not title_tag:
-                continue
-            title = title_tag.get_text(strip=True)
-
-            # リンク
-            link_tag = article.find("a", href=True)
-            link = f"https://huggingface.co{link_tag['href']}" if link_tag else ""
-
-            # ID
-            paper_id = link_tag["href"].split("/")[-1] if link_tag else ""
+            # 必要な情報を抽出
+            title = paper.title
+            paper_id = paper.id
+            link = f"https://huggingface.co/papers/{paper_id}"
 
             # サムネイル
             thumbnail = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper_id)
 
-            # 詳細な要約を取得
-            summary = get_paper_summary(link)
+            # 要約 (APIの結果にsummaryが含まれている場合はそれを使用)
+            summary = paper.summary if hasattr(paper, 'summary') and paper.summary else (
+                 paper.summary if paper.summary else "要約なし"
+            )
 
             # Upvotes
-            upvotes = _extract_upvotes(article)
+            upvotes = str(paper.upvotes) if hasattr(paper, 'upvotes') else "0"
 
             results.append(
                 {
