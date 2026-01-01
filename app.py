@@ -124,7 +124,7 @@ loaded_dates = []
 for single_date in daterange(start_date, end_date):
     date_str = single_date.strftime("%Y-%m-%d")
     daily_data = load_data(date_str)
-    if daily_data:
+    if daily_data is not None:
         papers.extend(daily_data)
         loaded_dates.append(single_date)
     else:
@@ -200,7 +200,7 @@ if missing_dates:
                 # separate status text is enough.
                 try:
                     daily_papers = fetch_daily_papers_from_hf(d)
-                    if daily_papers:
+                    if daily_papers is not None:
                         save_data(d_str, daily_papers)
                         newly_fetched_count += len(daily_papers)
                 except Exception as e:
@@ -231,7 +231,7 @@ if loaded_dates:
             with st.spinner(f"{d_str} を更新中..."):
                 try:
                     daily_papers = fetch_daily_papers_from_hf(d)
-                    if daily_papers:
+                    if daily_papers is not None:
                         save_data(d_str, daily_papers)
                 except Exception as e:
                     st.error(f"エラーが発生しました: {e}")
