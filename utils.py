@@ -169,9 +169,7 @@ def fetch_daily_papers_from_hf(
             thumbnail = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper_id)
 
             # 要約 (APIの結果にsummaryが含まれている場合はそれを使用)
-            summary = paper.summary if hasattr(paper, 'summary') and paper.summary else (
-                paper.summary if paper.summary else "要約なし"
-            )
+            summary = paper.summary if hasattr(paper, 'summary') and paper.summary else "要約なし"
 
             # Upvotes
             upvotes = str(paper.upvotes) if hasattr(paper, 'upvotes') else "0"

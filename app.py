@@ -273,7 +273,7 @@ if papers:
                     st.markdown(f"❤️ **{upvotes}** &nbsp;&nbsp; | &nbsp;&nbsp; 📅 {paper.get('date')}")
 
                     if paper.get('thumbnail'):
-                        st.image(paper['thumbnail'], width="stretch")
+                        st.image(paper['thumbnail'], use_container_width=True)
 
                     st.caption(f"ID: {paper.get('id', '')}")
                     st.markdown(f"[元記事を読む]({paper['link']})", unsafe_allow_html=True)

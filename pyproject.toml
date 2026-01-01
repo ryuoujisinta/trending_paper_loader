@@ -5,18 +5,18 @@ description = "Hugging Face Trending Paper Dashboard"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "streamlit>=1.29.0",
-    "huggingface_hub>=0.20.0",
+    "streamlit>=1.41.1",
+    "huggingface_hub>=1.2.3",
     "pandas>=2.2.3",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=7.4.3",
-    "pytest-cov>=4.1.0",
-    "black>=23.12.1",
-    "flake8>=7.0.0",
-    "mypy>=1.7.1",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "black>=24.10.0",
+    "flake8>=7.1.1",
+    "mypy>=1.14.1",
 ]
 
 [tool.black]
