@@ -29,6 +29,7 @@ class Config:
     PAGE_TITLE: str = "Trending Paper Dashboard"
     PAGE_ICON: str = "📄"
     LAYOUT: str = "wide"
+    ITEMS_PER_PAGE: int = 20
 
     # ロギング設定
     LOG_DIR: str = "logs"
@@ -62,6 +63,7 @@ class Config:
             LOG_FORMAT=os.getenv("LOG_FORMAT", cls.LOG_FORMAT),
             LOG_MAX_BYTES=int(os.getenv("LOG_MAX_BYTES", str(cls.LOG_MAX_BYTES))),
             LOG_BACKUP_COUNT=int(os.getenv("LOG_BACKUP_COUNT", str(cls.LOG_BACKUP_COUNT))),
+            ITEMS_PER_PAGE=int(os.getenv("ITEMS_PER_PAGE", str(cls.ITEMS_PER_PAGE))),
         )
 
 

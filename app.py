@@ -1,5 +1,6 @@
 # 標準ライブラリ
 import datetime
+import math
 import os
 
 # サードパーティライブラリ
@@ -255,9 +256,37 @@ if papers:
     filtered_papers = filter_papers(papers_sorted, search_query)
 
     if filtered_papers:
-        st.write(f"表示: {len(filtered_papers)} / {len(papers)} 件")
+        # Pagination Logic
+        total_items = len(filtered_papers)
+        items_per_page = config.ITEMS_PER_PAGE
+        total_pages = math.ceil(total_items / items_per_page)
 
-        for i, paper in enumerate(filtered_papers):
+        if "current_page" not in st.session_state:
+            st.session_state.current_page = 1
+
+        # Adjust current_page if out of bounds (e.g. after filtering)
+        if st.session_state.current_page > total_pages:
+            st.session_state.current_page = 1
+
+        col_info, col_pagination = st.columns([3, 1])
+
+        with col_info:
+            st.write(f"表示: {total_items} / {len(papers)} 件 (全 {total_pages} ページ)")
+
+        with col_pagination:
+            if total_pages > 1:
+                st.number_input(
+                    "ページ",
+                    min_value=1,
+                    max_value=total_pages,
+                    key="current_page"
+                )
+
+        start_idx = (st.session_state.current_page - 1) * items_per_page
+        end_idx = start_idx + items_per_page
+
+        # Display slice
+        for i, paper in enumerate(filtered_papers[start_idx:end_idx]):
             # Display-time thumbnail override
             if paper.get('id'):
                 paper['thumbnail'] = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper['id'])
