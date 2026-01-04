@@ -1,0 +1,37 @@
+[project]
+name = "trending-paper-dashboard"
+version = "0.1.0"
+description = "Hugging Face Trending Paper Dashboard"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "streamlit>=1.41.1",
+    "huggingface_hub>=1.2.3",
+    "pandas>=2.2.3",
+    "tornado<6.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "black>=24.10.0",
+    "flake8>=7.1.1",
+    "mypy>=1.14.1",
+]
+
+[tool.black]
+line-length = 150
+target-version = ['py313']
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=. --cov-report=html --cov-report=term"
