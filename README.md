@@ -137,14 +137,6 @@ uv run pytest --cov=. --cov-report=html tests/
 
 MIT License
 
-## 貢献
-
-プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
-
-## 作者
-
-（作者情報をここに追加）
-
 ## 謝辞
 
 - [Hugging Face](https://huggingface.co/) - 論文データの提供
