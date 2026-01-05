@@ -48,11 +48,6 @@ if not logger.handlers:
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    # コンソールハンドラ
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
-
 
 def load_data(date_str: str) -> list[dict[str, Any]] | None:
     """

@@ -33,7 +33,7 @@ Hugging FaceのTrending Papersを取得・表示するStreamlitダッシュボ�
 
 ```bash
 git clone <repository-url>
-cd 12-trending_paper
+cd trending_paper_loader
 ```
 
 2. **環境構築と依存パッケージのインストール**
