@@ -14,21 +14,17 @@ from data_processing import (
     sort_papers_by_date,
     sort_papers_by_upvotes,
 )
-from utils import load_data, save_data, fetch_daily_papers_from_hf, logger
+from utils import fetch_daily_papers_from_hf, load_data, logger, save_data
 
 # Page config
-st.set_page_config(
-    page_title=config.PAGE_TITLE,
-    page_icon=config.PAGE_ICON,
-    layout=config.LAYOUT
-)
+st.set_page_config(page_title=config.PAGE_TITLE, page_icon=config.PAGE_ICON, layout=config.LAYOUT)
 
 
 # Custom CSS
 def local_css(file_name):
     if os.path.exists(file_name):
         with open(file_name) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     else:
         st.warning(f"{file_name} not found.")
 
@@ -40,12 +36,12 @@ local_css("css/style.css")
 st.sidebar.title("Trending Paper Dashboard")
 
 # Date Selection (GMT/UTC)
-today = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=3)).date()
+today = (datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=3)).date()
 
 # Mode Selection
 date_mode = st.sidebar.radio("日付選択モード", ["単一日付", "期間指定"], horizontal=True)
 
-if 'single_date' not in st.session_state:
+if "single_date" not in st.session_state:
     st.session_state.single_date = today
 
 if date_mode == "単一日付":
@@ -65,23 +61,12 @@ if date_mode == "単一日付":
         st.button("▶", key="next_date", on_click=next_day, width="stretch")
 
     with col_date:
-        st.date_input(
-            "日付選択",
-            max_value=today,
-            format="YYYY/MM/DD",
-            key="single_date",
-            label_visibility="collapsed"
-        )
+        st.date_input("日付選択", max_value=today, format="YYYY/MM/DD", key="single_date", label_visibility="collapsed")
 
     start_date = end_date = st.session_state.single_date
 
 else:  # 期間指定
-    date_selection = st.sidebar.date_input(
-        "期間選択",
-        value=(today, today),
-        max_value=today,
-        format="YYYY/MM/DD"
-    )
+    date_selection = st.sidebar.date_input("期間選択", value=(today, today), max_value=today, format="YYYY/MM/DD")
 
     # Resolve date range
     if isinstance(date_selection, tuple):
@@ -135,6 +120,7 @@ for single_date in daterange(start_date, end_date):
 if loaded_dates:
     if st.sidebar.button("最新のUpvote数を取得"):
         from utils import get_upvotes_map
+
         progress_bar = st.sidebar.progress(0, text="Upvote取得中...")
         total = len(loaded_dates)
 
@@ -148,9 +134,9 @@ if loaded_dates:
                     if daily_data:
                         updated = False
                         for p in daily_data:
-                            pid = p.get('id')
+                            pid = p.get("id")
                             if pid in upvotes_map:
-                                p['upvotes'] = upvotes_map[pid]
+                                p["upvotes"] = upvotes_map[pid]
                                 updated = True
                         if updated:
                             save_data(d_str, daily_data)
@@ -275,21 +261,16 @@ if papers:
 
         with col_pagination:
             if total_pages > 1:
-                st.number_input(
-                    "ページ",
-                    min_value=1,
-                    max_value=total_pages,
-                    key="current_page"
-                )
+                st.number_input("ページ", min_value=1, max_value=total_pages, key="current_page")
 
         start_idx = (st.session_state.current_page - 1) * items_per_page
         end_idx = start_idx + items_per_page
 
         # Display slice
-        for i, paper in enumerate(filtered_papers[start_idx:end_idx]):
+        for paper in filtered_papers[start_idx:end_idx]:
             # Display-time thumbnail override
-            if paper.get('id'):
-                paper['thumbnail'] = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper['id'])
+            if paper.get("id"):
+                paper["thumbnail"] = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper["id"])
 
             with st.container(border=True):
                 c1, c2 = st.columns([1, 2])
@@ -298,18 +279,18 @@ if papers:
                     st.markdown(f"### {paper['title']}")
 
                     # Display upvotes and date
-                    upvotes = paper.get('upvotes', '0')
+                    upvotes = paper.get("upvotes", "0")
                     st.markdown(f"❤️ **{upvotes}** &nbsp;&nbsp; | &nbsp;&nbsp; 📅 {paper.get('date')}")
 
-                    if paper.get('thumbnail'):
-                        st.image(paper['thumbnail'], width="stretch")
+                    if paper.get("thumbnail"):
+                        st.image(paper["thumbnail"], width="stretch")
 
                     st.caption(f"ID: {paper.get('id', '')}")
                     st.markdown(f"[元記事を読む]({paper['link']})", unsafe_allow_html=True)
 
                 with c2:
                     st.markdown("#### Abstract")
-                    st.write(paper.get('summary', ''))
+                    st.write(paper.get("summary", ""))
 
     else:
         if search_query:

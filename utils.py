@@ -62,7 +62,7 @@ def load_data(date_str: str) -> list[dict[str, Any]] | None:
     file_path = os.path.join(config.DATA_DIR, f"{date_str}.json")
     if os.path.exists(file_path):
         logger.debug(f"データ読み込み: {file_path}")
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             return json.load(f)
     logger.info(f"対象日付のデータファイルが未取得です（パス: {file_path}）")
     return None
@@ -164,10 +164,10 @@ def fetch_daily_papers_from_hf(
             thumbnail = config.CDN_THUMBNAIL_URL_TEMPLATE.format(paper_id=paper_id)
 
             # 要約 (APIの結果にsummaryが含まれている場合はそれを使用)
-            summary = paper.summary if hasattr(paper, 'summary') and paper.summary else "要約なし"
+            summary = paper.summary if hasattr(paper, "summary") and paper.summary else "要約なし"
 
             # Upvotes
-            upvotes = str(paper.upvotes) if hasattr(paper, 'upvotes') else "0"
+            upvotes = str(paper.upvotes) if hasattr(paper, "upvotes") else "0"
 
             results.append(
                 {

@@ -56,9 +56,7 @@ def deduplicate_papers(papers: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return list(unique_papers.values())
 
 
-def sort_papers_by_date(
-    papers: list[dict[str, Any]], reverse: bool = True
-) -> list[dict[str, Any]]:
+def sort_papers_by_date(papers: list[dict[str, Any]], reverse: bool = True) -> list[dict[str, Any]]:
     """
     論文リストを日付順にソートする
 
@@ -72,9 +70,7 @@ def sort_papers_by_date(
     return sorted(papers, key=lambda x: x["date"], reverse=reverse)
 
 
-def sort_papers_by_upvotes(
-    papers: list[dict[str, Any]], reverse: bool = True
-) -> list[dict[str, Any]]:
+def sort_papers_by_upvotes(papers: list[dict[str, Any]], reverse: bool = True) -> list[dict[str, Any]]:
     """
     論文リストをUpvote数順にソートする
 
