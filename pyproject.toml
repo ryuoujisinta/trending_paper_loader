@@ -15,14 +15,9 @@ dependencies = [
 dev = [
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
-    "black>=24.10.0",
-    "flake8>=7.1.1",
     "mypy>=1.14.1",
+    "ruff>=0.14.10",
 ]
-
-[tool.black]
-line-length = 150
-target-version = ['py313']
 
 [tool.mypy]
 python_version = "3.13"
@@ -35,3 +30,29 @@ ignore_missing_imports = true
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --cov=. --cov-report=html --cov-report=term"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 150
+fix = true
+show-fixes = true
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "W",    # warnings
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+]
+ignore = [
+    "E203", # Black互換
+    "E501", # line-lengthはRuff側で管理
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["data_processing", "utils", "config", "exceptions"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]  # assert許可（pytest想定）
